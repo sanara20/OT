@@ -1,5 +1,12 @@
 (function () {
   'use strict';
+  if (window.__BUILD !== '20' || !window.OT || window.OT.BUILD !== '20') { /* mixed cached files: clear caches once and reload */
+    try { if (!sessionStorage.getItem('ot.heal')) { sessionStorage.setItem('ot.heal', '1');
+      Promise.all([(navigator.serviceWorker ? navigator.serviceWorker.getRegistrations().then((rs) => Promise.all(rs.map((r) => r.unregister()))) : 0), (window.caches ? caches.keys().then((ks) => Promise.all(ks.map((k) => caches.delete(k)))) : 0)]).then(() => location.reload(), () => location.reload()); return; } } catch (e) {}
+    const sp = document.getElementById('splash'); if (sp) sp.remove();
+    document.body.insertAdjacentHTML('afterbegin', '<div style="padding:24px;font:16px system-ui">ඇප් එක නිවැරදිව load වුණේ නැත. අන්තර්ජාලයට සම්බන්ධ වී පිටුව refresh කරන්න (නැතිනම් Chrome → Settings → Site settings → Clear data කරන්න, ඒ සඳහා කලින් backup ගන්න).</div>');
+    return;
+  }
   const KEY = 'ot.calc.v1';
   const EN0 = (() => { try { return JSON.parse(localStorage.getItem('ot.calc.v1')).settings.lang === 'en'; } catch (e) { return false; } })();
   const MONTHS_SI = ['ජනවාරි', 'පෙබරවාරි', 'මාර්තු', 'අප්‍රේල්', 'මැයි', 'ජූනි', 'ජූලි', 'අගෝස්තු', 'සැප්තැම්බර්', 'ඔක්තෝබර්', 'නොවැම්බර්', 'දෙසැම්බර්'];
@@ -25,7 +32,7 @@
 
   /* ---------- helpers ---------- */
   const $ = (s, r) => (r || document).querySelector(s);
-  const APP_VER = 'v19';
+  const APP_VER = 'v20';
   const fmtL = (n) => (n % 1 ? (Math.floor(n) || '') + '½' : String(n));
   let logoN = 0;
   function nrLogo(w) { const u = 'l' + (logoN++); return '<svg width="'+w+'" height="'+w+'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none"><defs><linearGradient id="gd'+u+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F6C453"/><stop offset="1" stop-color="#D97706"/></linearGradient><mask id="m'+u+'"><rect width="120" height="120" fill="#fff"/><g transform="translate(60,60) scale(.66) translate(-57,-60)" stroke="#000" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M34 82V38L56 82V38"/><path d="M56 38H68a11 11 0 0 1 0 22H56M66 60L80 82"/></g></mask></defs><rect x="4" y="4" width="112" height="112" rx="28" fill="#0A1931"/><path d="M27.1 41A38 38 0 0 1 89.1 35.6" stroke="#1D4ED8" stroke-width="6" stroke-linecap="round"/><path d="M92.9 79A38 38 0 0 1 30.9 84.4" stroke="#1D4ED8" stroke-width="6" stroke-linecap="round"/><circle cx="95.2" cy="45.8" r="4" fill="#1D4ED8"/><circle cx="24.8" cy="74.2" r="4" fill="#1D4ED8"/><circle cx="60" cy="60" r="29" fill="url(#gd'+u+')" mask="url(#m'+u+')"/></svg>'; }
