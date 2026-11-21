@@ -393,7 +393,7 @@
   }
 
   const api = {
-    BUILD: '20', adjacency, builtinYears, DEFAULTS, mergeSettings, toMin, fmtTime, fmtDur, pad, parseDate, dateStr, addDays, dayTypeOf,
+    BUILD: '21', adjacency, builtinYears, DEFAULTS, mergeSettings, toMin, fmtTime, fmtDur, pad, parseDate, dateStr, addDays, dayTypeOf,
     cutoffFor, capFor, dayCapFor, calcDay, summarize, holidayMap, rates, round2, applyMin,
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

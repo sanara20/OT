@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  if (window.__BUILD !== '20' || !window.OT || window.OT.BUILD !== '20') { /* mixed cached files: clear caches once and reload */
+  if (window.__BUILD !== '21' || !window.OT || window.OT.BUILD !== '21') { /* mixed cached files: clear caches once and reload */
     try { if (!sessionStorage.getItem('ot.heal')) { sessionStorage.setItem('ot.heal', '1');
       Promise.all([(navigator.serviceWorker ? navigator.serviceWorker.getRegistrations().then((rs) => Promise.all(rs.map((r) => r.unregister()))) : 0), (window.caches ? caches.keys().then((ks) => Promise.all(ks.map((k) => caches.delete(k)))) : 0)]).then(() => location.reload(), () => location.reload()); return; } } catch (e) {}
     const sp = document.getElementById('splash'); if (sp) sp.remove();
@@ -32,8 +32,10 @@
 
   /* ---------- helpers ---------- */
   const $ = (s, r) => (r || document).querySelector(s);
-  const APP_VER = 'v20';
+  const APP_VER = 'v21';
   const fmtL = (n) => (n % 1 ? (Math.floor(n) || '') + '½' : String(n));
+  const NOTE_SI = 'මෙය අතිකාල හා නිවාඩු දින දීමනා ගණනය කිරීම සහ වවුචර් සකසා ගැනීම පහසු කර ගැනීම සඳහා, මගේ පෞද්ගලික භාවිතයට නිර්මාණය කළ ඇප් එකකි. කැමති ඕනෑම කෙනෙකුට එය භාවිතා කළ හැක. මෙය රජයේ නිල ඇප් එකක් නොවේ. ගණනය කිරීම් සහ වවුචර් ඔබේ ආයතනයේ නීති රීතිවලට අනුකූලදැයි භාවිතයට පෙර ඔබම පරීක්ෂා කර ගන්න. මෙම ඇප් එක භාවිතයෙන් මතු විය හැකි කිසිදු නීතිමය හෝ මූල්‍යමය ගැටලුවකට සංවර්ධකයා වගකියන්නේ නැත; එය භාවිත කරන්නාගේම වගකීමකි.';
+  const NOTE_EN = 'This app was created for my own personal use, to make overtime and holiday-duty allowance calculations and voucher preparation easier. Anyone is welcome to use it. It is not an official government application. Please check, before using it, that the calculations and vouchers comply with your own institution\'s rules. The developer accepts no responsibility for any legal or financial issues that may arise from using this app; its use is at the user\'s own responsibility.';
   let logoN = 0;
   function nrLogo(w) { const u = 'l' + (logoN++); return '<svg width="'+w+'" height="'+w+'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none"><defs><linearGradient id="gd'+u+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F6C453"/><stop offset="1" stop-color="#D97706"/></linearGradient><mask id="m'+u+'"><rect width="120" height="120" fill="#fff"/><g transform="translate(60,60) scale(.66) translate(-57,-60)" stroke="#000" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M34 82V38L56 82V38"/><path d="M56 38H68a11 11 0 0 1 0 22H56M66 60L80 82"/></g></mask></defs><rect x="4" y="4" width="112" height="112" rx="28" fill="#0A1931"/><path d="M27.1 41A38 38 0 0 1 89.1 35.6" stroke="#1D4ED8" stroke-width="6" stroke-linecap="round"/><path d="M92.9 79A38 38 0 0 1 30.9 84.4" stroke="#1D4ED8" stroke-width="6" stroke-linecap="round"/><circle cx="95.2" cy="45.8" r="4" fill="#1D4ED8"/><circle cx="24.8" cy="74.2" r="4" fill="#1D4ED8"/><circle cx="60" cy="60" r="29" fill="url(#gd'+u+')" mask="url(#m'+u+')"/></svg>'; }
   const EN_ON = window.OT_DEV === true; /* English UI is still being prepared – only the test build enables it */
@@ -448,6 +450,7 @@
         '<label class="btn alt sm" style="cursor:pointer">ගොනුවකින් ප්‍රතිස්ථාපනය<input type="file" accept="application/json" id="restore" hidden></label></div>' +
         '<p class="mute" style="margin-bottom:0">දත්ත ඇත්තේ මෙම ෆෝන් එකේ පමණි. Chrome දත්ත මැකුවොත් නැති වේ, ඒ නිසා කලින් කලට උපස්ථයක් ගන්න.</p></div>';
       h += '<!--OUT-->';
+      h += '<div class="card" style="margin-top:12px"><button class="btn block" data-a="aboutapp">About App</button><div id="aboutAppBox" style="display:none;margin-top:10px;text-align:left"><div style="font-weight:700">OT Calculator · v' + APP_VER.replace('v', '') + '</div><div class="mute" style="margin-top:6px;line-height:1.6">' + lg(NOTE_SI, NOTE_EN) + '</div></div></div>';
       h += '<button class="btn block" data-a="tab" data-t="help">❓ උදවු / භාවිත මාර්ගෝපදේශය</button>';
       h += '<div class="card" style="text-align:center;margin-top:12px"><div style="display:flex;justify-content:center">' + nrLogo(72) + '</div><button class="btn block" style="margin-top:10px" data-a="about">About Developer</button><div id="aboutBox" style="display:none;margin-top:10px"><div style="font-weight:700">Made by Nalin Ranasinghe</div><div class="mute" style="margin-top:2px">Version ' + APP_VER.replace('v', '') + '</div></div></div>';
     }
@@ -996,6 +999,7 @@
       if (i >= 0 && i < STABS.length) { view.st = STABS[i][0]; render(); window.scrollTo(0, 0); }
     },
     viewsum() { view.tab = 'month'; render(); const e = document.getElementById('mSum'); if (e) e.scrollIntoView({ block: 'start' }); else window.scrollTo(0, 0); },
+    aboutapp() { const b = document.getElementById('aboutAppBox'); if (b) b.style.display = b.style.display === 'none' ? 'block' : 'none'; },
     about() { const b = document.getElementById('aboutBox'); if (b) b.style.display = b.style.display === 'none' ? 'block' : 'none'; },
     unlock() { DB.settings.locked = false; view.dirty = true; save(); render(); },
     stab(el) { if (guardLeave()) return; view.st = el.dataset.s; render(); window.scrollTo(0, 0); },
@@ -1274,10 +1278,16 @@
     const S = DB.settings;
     const ov = fullScreen('welcomeScreen', '<div style="font-size:42px">👋</div>' +
       '<div style="font-size:24px;font-weight:700">' + lg('ආයුබෝවන්!', 'Welcome!') + '</div>' +
-      '<div style="opacity:.9;font-size:16px;max-width:330px;line-height:1.6">' + lg('මෙය අතිකාල හා නිවාඩු දින වැටුප්  ගණනය කිරීම සහ වවුචර් මුද්‍රණය කිරීම පහසු කර ගැනීම සඳහා සකස් කල ඇප් එකකි. දැනට කාර්යාල නිලධාරීන්ගේ රාජකාරි වේලාවන් පදනම් කරගෙන සකසා ඇත.',
-        'This app calculates overtime and holiday-duty allowances automatically and prepares the vouchers for printing. It is currently set up around office officers\' duty hours.') + '</div>' +
-      '<button id="wNext" style="' + BS + '">' + lg('ඉදිරියට යන්න ➜', 'Continue ➜') + '</button>');
-    ov.querySelector('#wNext').onclick = () => { S.welcomeSeen = true; save(); ov.remove(); startFlow(); };
+      '<div style="opacity:.9;font-size:16px;max-width:330px;line-height:1.6">' + lg(NOTE_SI + ' දැනට කාර්යාල නිලධාරීන්ගේ රාජකාරි වේලාවන් පදනම් කරගෙන සකසා ඇත.', NOTE_EN + ' It is currently set up around office officers\' duty hours.') + '</div>' +
+      '<button id="wNext" style="' + BS + '">' + lg('තේරුම් ගත්තා, ඉදිරියට ➜', 'I understand, continue ➜') + '</button>');
+    ov.querySelector('#wNext').onclick = () => { S.welcomeSeen = true; S.noticeSeen = true; save(); ov.remove(); startFlow(); };
+  }
+  function showNotice() {
+    const S = DB.settings;
+    const ov = fullScreen('noticeScreen', '<div style="font-size:38px">ℹ️</div><div style="font-size:20px;font-weight:700">' + lg('දැනුම්දීමක්', 'Notice') + '</div>' +
+      '<div style="opacity:.92;font-size:15px;max-width:330px;line-height:1.65;text-align:left">' + lg(NOTE_SI, NOTE_EN) + '</div>' +
+      '<button id="nOk" style="' + BS + '">' + lg('තේරුම් ගත්තා', 'I understand') + '</button>');
+    ov.querySelector('#nOk').onclick = () => { S.noticeSeen = true; save(); ov.remove(); };
   }
   function showInstallScreen() {
     const bs = BS;
@@ -1308,8 +1318,8 @@
   function startFlow() {
     const S = DB.settings;
     if (!S.lang) return;
-    if (!S.welcomed && (Number(S.baseSalary) > 0 || S.name)) { S.welcomed = S.welcomeSeen = S.onboarded = true; save(); return; } /* existing user */
-    if (S.welcomed) return;
+    if (!S.welcomed && (Number(S.baseSalary) > 0 || S.name)) { S.welcomed = S.welcomeSeen = S.onboarded = true; save(); if (!S.noticeSeen) showNotice(); return; } /* existing user */
+    if (S.welcomed) { if (!S.noticeSeen) showNotice(); return; }
     if (!S.welcomeSeen) return showWelcome();
     if (!S.onboarded && !S.installed && !isStandalone()) return showInstallScreen();
     showDetails();
@@ -1322,7 +1332,7 @@
     document.body.appendChild(ov);
   }
   startFlow();
-  { const sp = document.getElementById('splash'); if (sp) setTimeout(() => { sp.style.opacity = '0'; setTimeout(() => sp.remove(), 450); }, Math.max(0, 1400 - performance.now())); }
+  { const sp = document.getElementById('splash'); if (sp) setTimeout(() => { sp.style.opacity = '0'; setTimeout(() => sp.remove(), 450); }, Math.max(0, 2500 - performance.now())); }
   window.addEventListener('beforeunload', (e) => { if (view.tab === 'settings' && (view.dirty || view.capDirty) && DB.settings.locked !== true) { e.preventDefault(); e.returnValue = ''; } });
   try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) { /* ignore */ }
   { const hd = document.querySelector('header.top'); if (hd) document.documentElement.style.setProperty('--hh', hd.offsetHeight + 'px'); }
