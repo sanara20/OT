@@ -25,7 +25,8 @@
 
   /* ---------- helpers ---------- */
   const $ = (s, r) => (r || document).querySelector(s);
-  const APP_VER = 'v17';
+  const APP_VER = 'v18';
+  const fmtL = (n) => (n % 1 ? (Math.floor(n) || '') + '½' : String(n));
   let logoN = 0;
   function nrLogo(w) { const u = 'l' + (logoN++); return '<svg width="'+w+'" height="'+w+'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none"><defs><linearGradient id="gd'+u+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F6C453"/><stop offset="1" stop-color="#D97706"/></linearGradient><mask id="m'+u+'"><rect width="120" height="120" fill="#fff"/><g transform="translate(60,60) scale(.66) translate(-57,-60)" stroke="#000" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M34 82V38L56 82V38"/><path d="M56 38H68a11 11 0 0 1 0 22H56M66 60L80 82"/></g></mask></defs><rect x="4" y="4" width="112" height="112" rx="28" fill="#0A1931"/><path d="M27.1 41A38 38 0 0 1 89.1 35.6" stroke="#1D4ED8" stroke-width="6" stroke-linecap="round"/><path d="M92.9 79A38 38 0 0 1 30.9 84.4" stroke="#1D4ED8" stroke-width="6" stroke-linecap="round"/><circle cx="95.2" cy="45.8" r="4" fill="#1D4ED8"/><circle cx="24.8" cy="74.2" r="4" fill="#1D4ED8"/><circle cx="60" cy="60" r="29" fill="url(#gd'+u+')" mask="url(#m'+u+')"/></svg>'; }
   const EN_ON = window.OT_DEV === true; /* English UI is still being prepared – only the test build enables it */
@@ -243,7 +244,7 @@
     const dvTxt = '1/' + (DB.settings.allowanceDivisor || 30);
     let out = '<div class="card" id="mSum"><h2>' + monthLabel(view.month) + ' සාරාංශය</h2><div class="tot">' +
       '<span>සේවය කල දින ගණන</span><b>' + sm.workedDays + '</b>' +
-      '<span>ලබා ගත් නිවාඩු / OFF</span><b>' + sm.leaveDays + ' / ' + sm.offDays + '</b>' +
+      '<span>ලබා ගත් නිවාඩු / OFF</span><b>' + fmtL(sm.leaveDays + sm.halfDays / 2) + ' / ' + sm.offDays + '</b>' +
       (sm.shortLeaves || sm.halfDays ? lb('කෙටි නිවාඩු / අර්ධ දින', 'කෙටි නිවාඩු මාසයට ' + sm.shortLeaveCap + 'ක් හිමියි') + '<b>' + sm.shortLeaves + ' / ' + sm.halfDays + '</b>' : '') +
       '<div class="sep"></div>' + lb('<b>OT + DAYS PAY</b>') + '<b style="font-size:20px">' + money(sm.otAmount + sm.allowAmount) + '</b></div></div>' +
       '<div class="card"><h2>OT</h2><div class="tot">' +
@@ -261,14 +262,14 @@
       '<span>දිනක වැටුප</span><b>' + money(sm.daily) + '</b>' +
       '<div class="sep"></div><span><b>' + dvTxt + ' දීමනාව</b></span><b>' + money(sm.allowAmount) + '</b></div>' +
       (claimed ? '<p class="mute" style="margin:10px 0 0">✅ මෙම මාසය ' + new Date(claimed.at).toLocaleDateString() + ' දින සුරකින ලදී. නැවත තහවුරු කළොත් අලුත් අගයන් ආදේශ වේ.</p>' : '') +
-      '<button class="btn gold block" style="margin-top:12px" data-a="claim">වවුචර් සකසන්න</button><div style="text-align:center;margin-top:8px"><a href="#" data-a="spmanual" style="font-size:13px">විශේෂ දින තෝරන්න</a></div></div>';
+      '<button class="btn gold block" style="margin-top:12px" data-a="claim">වවුචර් සකසන්න</button></div>';
     out += '<div class="card"><h2>දිනපතා සටහන්</h2>' + list + '</div>';
     return out;
   }
 
   /* ---------- special days popup (before making vouchers) ---------- */
   const SPN = { comp: 'හිලව් නිවාඩුවක් සඳහා ඉතිරි කරනවා', allot: 'සම්පූර්ණ පැය ගණනම OT ලෙස', skip: 'මේ දවසේ OT / දීමනා ගන්නේ නෑ', noot: 'මේ දවසේ OT ගන්නේ නෑ', am: 'OT උදේ පමණයි', pm: 'OT හවස පමණයි' };
-  function spRelevant(sm) { return sm.rows.some((r) => r.res.kind === 'worked' && r.res.valid && r.entry && (r.type !== 'weekday' || r.res.leave || r.res.adj === 'pending' || r.entry.special || r.entry.otTo || r.entry.lvOverride)); }
+  function spRelevant(sm) { return sm.rows.some((r) => r.res.kind === 'worked' && r.res.valid && r.entry && (r.type !== 'weekday' || r.res.leave || r.res.adj === 'pending' || r.entry.special || r.entry.otTo || r.entry.lvOverride || (r.res.ot > 0 && (r.entry.overnight || (r.entry.out && OT.toMin(r.entry.out) > 18 * 60 && OT.cutoffFor(r.date, DB.settings) > 18 * 60))))); }
   function otToOpts(cur) { let o = '<option value="">අනුමත වේලාව දක්වා</option>'; for (let m = 16 * 60 + 30; m <= 22 * 60; m += 15) { const t = String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); o += '<option value="' + t + '"' + (cur === t ? ' selected' : '') + '>' + t + '</option>'; } return o; }
   function spPopup(open) {
     const sm = SUM(); let p = document.getElementById('spop'); if (p) p.remove();
@@ -440,7 +441,7 @@
         '<label class="btn alt sm" style="cursor:pointer">ගොනුවකින් ප්‍රතිස්ථාපනය<input type="file" accept="application/json" id="restore" hidden></label></div>' +
         '<p class="mute" style="margin-bottom:0">දත්ත ඇත්තේ මෙම ෆෝන් එකේ පමණි. Chrome දත්ත මැකුවොත් නැති වේ, ඒ නිසා කලින් කලට උපස්ථයක් ගන්න.</p></div>';
       h += '<button class="btn block" data-a="tab" data-t="help">❓ උදවු / භාවිත මාර්ගෝපදේශය</button>';
-      h += '<div class="card" style="text-align:center;margin-top:12px"><div style="display:flex;justify-content:center">' + nrLogo(72) + '</div><h2 style="margin:8px 0 2px">සංවර්ධකයා ගැන</h2><div style="font-weight:700">නලින් රණසිංහ</div><div class="mute" style="margin-top:4px">මෙම ඇප් එක නිර්මාණය කළේ නලින් රණසිංහ විසිනි.</div><div class="mute" style="margin-top:6px;font-size:12px">අනුවාදය ' + APP_VER + '</div></div>';
+      h += '<div class="card" style="text-align:center;margin-top:12px"><div style="display:flex;justify-content:center">' + nrLogo(72) + '</div><button class="btn block" style="margin-top:10px" data-a="about">About Developer</button><div id="aboutBox" style="display:none;margin-top:10px"><div style="font-weight:700">Made by Nalin Ranasinghe</div><div class="mute" style="margin-top:2px">Version ' + APP_VER.replace('v', '') + '</div></div></div>';
     }
     return h;
   }
@@ -987,7 +988,8 @@
       if (i >= 0 && i < STABS.length) { view.st = STABS[i][0]; render(); window.scrollTo(0, 0); }
     },
     viewsum() { view.tab = 'month'; render(); const e = document.getElementById('mSum'); if (e) e.scrollIntoView({ block: 'start' }); else window.scrollTo(0, 0); },
-    unlock() { DB.settings.locked = false; save(); render(); },
+    about() { const b = document.getElementById('aboutBox'); if (b) b.style.display = b.style.display === 'none' ? 'block' : 'none'; },
+    unlock() { DB.settings.locked = false; view.dirty = true; save(); render(); },
     stab(el) { if (guardLeave()) return; view.st = el.dataset.s; render(); window.scrollTo(0, 0); },
     helpna() { toast('සකස් කර අවසන් නැත, පසුව උත්සාහ කරන්න', true); view.tab = 'home'; render(); window.scrollTo(0, 0); },
     setlang(el) { if (!EN_ON) return; DB.settings.lang = el.dataset.l === 'en' ? 'en' : 'si'; save(); location.reload(); },
@@ -1312,6 +1314,8 @@
     document.body.appendChild(ov);
   }
   startFlow();
+  { const sp = document.getElementById('splash'); if (sp) setTimeout(() => { sp.style.opacity = '0'; setTimeout(() => sp.remove(), 450); }, Math.max(0, 1400 - performance.now())); }
+  window.addEventListener('beforeunload', (e) => { if (view.tab === 'settings' && (view.dirty || view.capDirty) && DB.settings.locked !== true) { e.preventDefault(); e.returnValue = ''; } });
   try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) { /* ignore */ }
   { const hd = document.querySelector('header.top'); if (hd) document.documentElement.style.setProperty('--hh', hd.offsetHeight + 'px'); }
   render();
