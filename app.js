@@ -25,7 +25,7 @@
 
   /* ---------- helpers ---------- */
   const $ = (s, r) => (r || document).querySelector(s);
-  const APP_VER = 'v18';
+  const APP_VER = 'v19';
   const fmtL = (n) => (n % 1 ? (Math.floor(n) || '') + '½' : String(n));
   let logoN = 0;
   function nrLogo(w) { const u = 'l' + (logoN++); return '<svg width="'+w+'" height="'+w+'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none"><defs><linearGradient id="gd'+u+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F6C453"/><stop offset="1" stop-color="#D97706"/></linearGradient><mask id="m'+u+'"><rect width="120" height="120" fill="#fff"/><g transform="translate(60,60) scale(.66) translate(-57,-60)" stroke="#000" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M34 82V38L56 82V38"/><path d="M56 38H68a11 11 0 0 1 0 22H56M66 60L80 82"/></g></mask></defs><rect x="4" y="4" width="112" height="112" rx="28" fill="#0A1931"/><path d="M27.1 41A38 38 0 0 1 89.1 35.6" stroke="#1D4ED8" stroke-width="6" stroke-linecap="round"/><path d="M92.9 79A38 38 0 0 1 30.9 84.4" stroke="#1D4ED8" stroke-width="6" stroke-linecap="round"/><circle cx="95.2" cy="45.8" r="4" fill="#1D4ED8"/><circle cx="24.8" cy="74.2" r="4" fill="#1D4ED8"/><circle cx="60" cy="60" r="29" fill="url(#gd'+u+')" mask="url(#m'+u+')"/></svg>'; }
@@ -374,13 +374,13 @@
     if (S.locked && typeof S.locked === 'object') S.locked = !!(S.locked.me || S.locked.pay); /* migrate older flag */
     const lk = S.locked === true;
     const i = h0.indexOf('</div>') + 6; /* after the tab strip */
-    const strip = h0.slice(0, i), body = h0.slice(i);
+    const strip = h0.slice(0, i), full = h0.slice(i), oi = full.indexOf('<!--OUT-->'), body = oi < 0 ? full : full.slice(0, oi), outside = oi < 0 ? '' : full.slice(oi + 10);
     const banner = lk ? '<div style="margin-bottom:12px"><button class="btn alt block" data-a="unlock">🔒 ' + lg('සැකසුම් වෙනස් කරන්න', 'Edit settings') + '</button></div>' : '';
     const idx = STABS.findIndex((x) => x[0] === st);
     const arrows = '<div class="row" style="gap:10px;margin-top:10px">' + (idx > 0 ? '<button class="btn alt" style="flex:1;font-size:22px" data-a="snav" data-d="-1">◀</button>' : '<span style="flex:1"></span>') +
       (idx < STABS.length - 1 ? '<button class="btn alt" style="flex:1;font-size:22px" data-a="snav" data-d="1">▶</button>' : '<span style="flex:1"></span>') + '</div>';
     const save = lk ? '' : '<button class="btn gold block" id="saveBtn" data-a="savenext">SAVE</button>';
-    return strip + banner + '<fieldset ' + (lk ? 'disabled' : '') + ' style="border:0;padding:0;margin:0;min-width:0">' + body + '</fieldset>' + save + arrows;
+    return strip + banner + '<fieldset ' + (lk ? 'disabled' : '') + ' style="border:0;padding:0;margin:0;min-width:0">' + body + '</fieldset>' + outside + save + arrows;
   }
   const DESIGS = ['රාජ්‍ය සෞඛ්‍ය කළමනාකරණ සහකාර', 'සංවර්ධන නිලධාරී'];
   function desigField() {
@@ -440,6 +440,7 @@
       h += '<div class="card"><h2>දත්ත උපස්ථය</h2><div class="row" style="flex-wrap:wrap"><button class="btn sm" data-a="backup">උපස්ථ ගොනුව බාගන්න</button>' +
         '<label class="btn alt sm" style="cursor:pointer">ගොනුවකින් ප්‍රතිස්ථාපනය<input type="file" accept="application/json" id="restore" hidden></label></div>' +
         '<p class="mute" style="margin-bottom:0">දත්ත ඇත්තේ මෙම ෆෝන් එකේ පමණි. Chrome දත්ත මැකුවොත් නැති වේ, ඒ නිසා කලින් කලට උපස්ථයක් ගන්න.</p></div>';
+      h += '<!--OUT-->';
       h += '<button class="btn block" data-a="tab" data-t="help">❓ උදවු / භාවිත මාර්ගෝපදේශය</button>';
       h += '<div class="card" style="text-align:center;margin-top:12px"><div style="display:flex;justify-content:center">' + nrLogo(72) + '</div><button class="btn block" style="margin-top:10px" data-a="about">About Developer</button><div id="aboutBox" style="display:none;margin-top:10px"><div style="font-weight:700">Made by Nalin Ranasinghe</div><div class="mute" style="margin-top:2px">Version ' + APP_VER.replace('v', '') + '</div></div></div>';
     }
